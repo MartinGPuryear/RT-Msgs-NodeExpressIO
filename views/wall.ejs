@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<html lang='en-US'>
+<head>
+    <meta charset='UTF-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+        <meta name='description' content='Node/ExpressIO Black Belt Exam' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <meta name='author' content='Martin Puryear' />
+
+    <link rel='stylesheet' type='text/css' href='/bootstrap-3.0.3-dist/dist/css/bootstrap.min.css' />
+    <link rel='stylesheet' type='text/css' href='/stylesheets/style.css' />
+
+    <script type='text/javascript' src='/JQuery/v1.10.2/jquery.min.js'></script>
+    <script type='text/javascript' src='/bootstrap-3.0.3-dist/dist/js/bootstrap.min.js'></script>
+    <script type='text/javascript' src='/socket.io/socket.io.js'></script>
+
+    <script type='text/javascript'>
+    
+        var io = io.connect('http://localhost:6789'); 
+
+        $(document).ready(function ()
+        {
+            io.emit('ready');
+            io.emit('request_all_post_list');
+            io.emit('request_all_reply_list');
+
+            function display_post(post)
+            {
+                var post_string = "<div id='post-" + post.post_id + "'>" + post.poster + " said: " + post.text;
+                post_string += "<div class='offset-right'><div id='replies-" + post.post_id + "'></div>";
+                post_string += "<input type='text' id='reply_post_" + post.post_id + "' class='form-control' />";
+                post_string += "<input type='button' class='btn btn-primary reply-button' post_id='" + post.post_id + "' value='Reply' /></div></div><hr />";
+
+                $('#message-board').prepend(post_string);
+            }
+
+            function display_posts(posts)
+            {
+                if (posts.length == 0)
+                    return;
+
+                for (var post_num = 0; post_num < posts.length; post_num++) 
+                {
+                    display_post(posts[post_num]);
+                }
+            }
+
+            function display_reply(reply)
+            {
+                var reply_string = "<div>" + reply.replier + " said: " + reply.text + "</div>";
+
+                var reply_location = "#replies-" + reply.post_id;
+                $(reply_location).append(reply_string);
+            }
+
+            function display_replies(replies)
+            {
+                if (replies.length == 0)
+                    return;
+
+                for (var reply_num = 0; reply_num < replies.length; reply_num++) 
+                {
+                    display_reply(replies[reply_num]);
+                };
+            }
+
+            function display_leaders(leaders)
+            {
+                $('#leaderboard').html('');
+                for (var i = 0; i < leaders.length; i++) 
+                {
+                    if (leaders[i].count >= 0)
+                    {
+                        leader_str = "<div><a href='/profile/" + leaders[i].name + "'>" + leaders[i].name + "</a>: " + leaders[i].count + " comments</div>";
+                        $('#leaderboard').append(leader_str);
+                    }
+                }
+            }
+
+
+            $('#msg-submit').click(function(evt)
+                {
+                    post_txt = $('#msg-input').val();
+                    $('#msg-input').val('');
+
+                    io.emit('new_post', { text: post_txt } );
+                });
+
+            $(document).on('click', '.reply-button', function(evt)
+                {
+                    post_id = $(this).attr('post_id');
+                    textStr = '#reply_post_' + post_id;
+                    reply_txt = $(textStr).val();
+                    $(textStr).val('');
+
+                    io.emit('new_reply', { text: reply_txt, post_id: post_id } );
+                });
+
+
+            io.on('all_post_list_received', function(data)
+                {
+                    display_posts(data.posts);
+                });
+
+            io.on('new_post_received', function(post)
+                {
+                    display_post(post);
+                });
+
+            io.on('all_reply_list_received', function(data)
+                {
+                    display_replies(data.replies);
+                });
+
+            io.on('new_reply_received', function(reply)
+                {
+                    display_reply(reply);
+                });
+
+            io.on('leaderboard_updated', function(data)
+                {
+                    display_leaders(data.leaders);
+                });
+
+        });
+
+
+    </script>
+
+    <title><%= title %></title>
+
+</head>
+
+<body class='container'>
+
+    <div class='col-xs-8'>
+        <h3><%= title %></h3>
+        <h4>Hi <%= name %>!</h4>
+        <a href='/profile/<%= name %>'>My Profile</a> | <a href='/logout'>Logout</a>
+    </div>
+    <div class='col-xs-4 text-right'>
+        <div id='leaders-div'>
+            <div id='leaders-header'>Top 3 Commenters</div>
+            <div id='leaderboard'></div>
+        </div>
+    </div>
+    <hr>        <!-- This hack seems necesssary to make Firefox look OK.  Boo  ):   -->
+    <br>
+    <hr>
+    <br>
+    <div id='new-msg-form' class='form-vertical'>
+        <input type='text' id='msg-input' name='message' class='form-control' placeholder='send a message to everyone' autofocus />
+        <input type='button' id='msg-submit' class='btn btn-primary' value='Send' />
+    </div>
+
+    <div id='discussion-header'>Current Discussion</div>
+    <div id='message-board'></div>
+
+</body>
+</html>

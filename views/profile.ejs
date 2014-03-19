@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<html lang='en-US'>
+<head>
+    <meta charset='UTF-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta name='description' content='Node/ExpressIO Black Belt Exam' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <meta name='author' content='Martin Puryear' />
+
+    <link rel='stylesheet' type='text/css' href='/bootstrap-3.0.3-dist/dist/css/bootstrap.min.css' />
+    <link rel='stylesheet' type='text/css' href='/stylesheets/style.css' />
+
+    <title><%= title %></title>
+
+    <script type='text/javascript' src='/JQuery/v1.10.2/jquery.min.js'></script>
+    <script type='text/javascript' src='/bootstrap-3.0.3-dist/dist/js/bootstrap.min.js'></script>
+    <script type='text/javascript' src='/socket.io/socket.io.js'></script>
+
+    <script type='text/javascript'>
+    
+        var io = io.connect('http://localhost:6789'); 
+
+        num_posts = 0;
+        num_replies = 0;
+
+        function add_post(post)
+        {
+            num_posts++;
+            $('#num-posts').html(num_posts);
+            $('#post-list').append("<p>" + post + "</p>");
+        }
+
+        function display_posts(posts)
+        {
+            if (posts.length == 0)
+                return;
+
+            for (var post_num = posts.length-1; post_num >= 0; post_num--) 
+            {
+                add_post(posts[post_num]);
+            };
+        }
+
+        function add_reply(reply)
+        {
+            num_replies++;
+            $('#num-replies').html(num_replies);
+            $('#reply-list').append("<p>" + reply + "</p>");
+        }
+
+        function display_replies(replies)
+        {
+            if (replies.length == 0)
+                return;
+
+            for (var reply_num = replies.length-1; reply_num >= 0; reply_num--) 
+            {
+                add_reply(replies[reply_num]);
+            };
+        }
+
+        $(document).ready(function ()
+        {
+            io.emit('profile_ready');            
+        
+            io.on('new_post_received', function(post)
+                {
+                    if (post.poster == $('#profile_name').html())
+                    {
+                        add_post(post.text);
+                    }
+                });
+
+            io.on('new_reply_received', function(reply)
+                {
+                    if (reply.replier == $('#profile_name').html())
+                    {
+                        add_reply(reply.text);
+                    }
+                });
+
+            io.on('user_post_list_received', function(data)
+                {
+                    display_posts(data.posts);
+                });
+
+            io.on('user_reply_list_received', function(data)
+                {
+                    display_replies(data.replies);
+                });
+        });
+
+    </script>
+</head>
+
+<body class='container'>
+
+    <div class='text-right'>
+        <a href='/wall'>Return to Message Board</a> | <a href='/logout'>Logout</a>
+    </div>
+
+    <h2>Posts by <span id='profile_name'><%= user_name %></span></h2>
+
+    
+    <p class='col-xs-6'>Total Posts: <span id='num-posts'>0</span></p>
+    <p class='col-xs-6'>Total Replies: <span id='num-replies'>0</span></p>
+
+    <div class='title col-xs-6'>Posts</div>
+    <div class='title col-xs-6'>Replies</div>
+
+    <div class='col-xs-6'><div id='post-list'></div></div>
+    <div class='col-xs-6'><div id='reply-list'></div></div>
+
+</body>
+</html>

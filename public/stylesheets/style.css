@@ -1,0 +1,51 @@
+
+body{
+	font-family: sans-serif;
+	min-width: 600px;
+}
+
+#error-block{
+	color: red;
+	font-weight: 900;
+	font-size: 24px;
+	margin: 60px;
+}
+
+#name-form{
+	margin: 60px;
+}
+
+.title{
+	font-weight: 900;
+	padding-top: 12px;
+}
+
+#post-list, #reply-list{
+	border: 2px solid black;
+	padding: 6px;
+}
+
+h3{
+	margin-top: 5px;
+}
+
+#leaders-div{
+	border: 1px solid black;
+	margin: 12px;
+	padding: 6px;
+}
+
+#leaders-header{
+	font-weight: 900;
+	text-decoration: underline;
+	text-align: center;
+}
+
+#discussion-header{
+	font-weight: 900;
+	text-decoration: underline;
+}
+
+.offset-right{
+	padding-left: 24px;
+}
