@@ -68,29 +68,19 @@ module.exports = function Route(app)
 
   app.io.route('ready',      function(request) 
     { 
-      console.log('RECEIVED: ready'); 
       update_leaders();
     });
 
   app.io.route('profile_ready',      function(request) 
     { 
       update_leaders();
-      var profile_id;
-      // if (request.session.visiting_profile_id)
-      {
-        profile_id = request.session.visiting_profile_id;
-      }
-      // else
-      {
-        // profile_id = request.session.user_id;
-      }
+      var profile_id = request.session.visiting_profile_id;
       request.io.emit('user_post_list_received', { posts: users[profile_id].posts } );
       request.io.emit('user_reply_list_received', { replies: users[profile_id].replies } );
     });
 
   app.io.route('disconnect', function(request) 
     {
-      // console.log("RECEIVED: disconnect (" + request.session.name + " @ " + request.session.sessionID + ")");
     });
 
   app.io.route('new_post', function(request) 
