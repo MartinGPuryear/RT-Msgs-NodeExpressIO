@@ -1,37 +1,43 @@
 <!DOCTYPE HTML>
 <html lang='en-US'>
-<head>
-    <meta charset='UTF-8' />
-    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
-    <meta name='description' content='Node/ExpressIO Black Belt Exam' />
-    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    <meta name='author' content='Martin Puryear' />
 
-    <link rel='stylesheet' type='text/css' href='/bootstrap-3.0.3-dist/dist/css/bootstrap.min.css' />
-    <link rel='stylesheet' type='text/css' href='/stylesheets/style.css' />
+<!-- 
+    Basic login page, with a standard POST.  Bootstrap provides cols. 
+ -->
+
+<head>
+  <meta charset='UTF-8' />
+  <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+  <meta name='description' content='Node/ExpressIO Black Belt Exam' />
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+  <meta name='author' content='Martin Puryear' />
+
+  <link rel='stylesheet' type='text/css' href='/bootstrap-3.0.3-dist/dist/css/bootstrap.min.css' />
+  <link rel='stylesheet' type='text/css' href='/stylesheets/style.css' />
 
   <script type='text/javascript' src='/JQuery/v1.10.2/jquery.min.js'></script>
   <script type='text/javascript' src='/bootstrap-3.0.3-dist/dist/js/bootstrap.min.js'></script>
 
   <title><%= title %></title>
-    
+  
 </head>
 
 <body class='container'>
 
 <%  if (error) { %>
-    <div id='error-block'><%= error %></div>
+  <div id='error-block'><%= error %></div>
 <%  }   %>
 
-    <form action='/login' method='post' id='name-form' class='form-horizontal'>
-        <div class='form-group'>
-            <label for='name-input' class='control-label col-xs-3'>Your Name:</label>
-            <input type='text' id='name-input' class='col-xs-9' name='name' class='form-control' placeholder='will be shown on all msgs you send' autofocus />
-        </div>
-        <div class='form-group'>
-            <input type='submit' id='name-submit' class='btn btn-primary col-xs-3 col-xs-offset-9' value='<%= title %>' />
-        </div>
-    </form>
+  <form action='/login' method='post' id='name-form' class='form-horizontal'>
+    <div class='form-group'>
+      <label for='name-input' class='control-label col-xs-3'>Your Name:</label>
+      <input type='text' id='name-input' class='col-xs-9' name='name' class='form-control' placeholder='will be shown on all msgs you send' autofocus />
+    </div>
+    
+    <div class='form-group'>
+      <input type='submit' id='name-submit' class='btn btn-primary col-xs-3 col-xs-offset-9' value='<%= title %>' />
+    </div>
+  </form>
 
 </body>
 </html>

@@ -1,51 +1,58 @@
+/*  
+  style.css - stylesheet for the RT-Messages application,
+  a NodeJS & ExpressIO project created in about 4 hours 
+  for a CodingDojo Black Belt exam.  
+  This app uses Bootstrap3 for quick columns and to indent
+  the replies on posts.
+*/
 
-body{
-	font-family: sans-serif;
-	min-width: 600px;
+body {
+  font-family: sans-serif;
+  min-width: 600px;
 }
 
-#error-block{
-	color: red;
-	font-weight: 900;
-	font-size: 24px;
-	margin: 60px;
+#error-block {
+  color: red;
+  font-weight: 900;
+  font-size: 24px;
+  margin: 60px;
 }
 
-#name-form{
-	margin: 60px;
+#name-form {
+  margin: 60px;
 }
 
-.title{
-	font-weight: 900;
-	padding-top: 12px;
+.title {
+  font-weight: 900;
+  padding-top: 12px;
 }
 
-#post-list, #reply-list{
-	border: 2px solid black;
-	padding: 6px;
+#post-list, #reply-list {
+  border: 2px solid black;
+  padding: 6px;
 }
 
-h3{
-	margin-top: 5px;
+h3 {
+  margin-top: 5px;
 }
 
-#leaders-div{
-	border: 1px solid black;
-	margin: 12px;
-	padding: 6px;
+#leaders-div {
+  border: 1px solid black;
+  margin: 12px;
+  padding: 6px;
 }
 
-#leaders-header{
-	font-weight: 900;
-	text-decoration: underline;
-	text-align: center;
+#leaders-header {
+  font-weight: 900;
+  text-decoration: underline;
+  text-align: center;
 }
 
-#discussion-header{
-	font-weight: 900;
-	text-decoration: underline;
+#discussion-header {
+  font-weight: 900;
+  text-decoration: underline;
 }
 
-.offset-right{
-	padding-left: 24px;
+.offset-right {
+  padding-left: 24px;
 }

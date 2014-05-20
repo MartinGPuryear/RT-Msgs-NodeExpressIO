@@ -1,5 +1,18 @@
 <!DOCTYPE HTML>
 <html lang='en-US'>
+
+<!--
+    Display a particular user's profile.  
+    
+    Request the list of their posts, add them to a sorted
+    list, and display them.  Request the list of their 
+    replies, add them to a sorted list, and display them.  
+    
+    If additional posts or replies from this profile 
+    arrive while the current user is in this view, also
+    add them to the sorted list and display them.     
+-->
+
 <head>
   <meta charset='UTF-8' />
   <meta http-equiv='X-UA-Compatible' content='IE=edge' />
@@ -23,6 +36,7 @@
     num_posts = 0;
     num_replies = 0;
 
+    //  For a single post, display it and increment our count.
     function add_post(post)
     {
       num_posts++;
@@ -30,6 +44,7 @@
       $('#post-list').append("<p>" + post + "</p>");
     }
 
+    //  Iterate through the entire list of posts, calling add_post
     function display_posts(posts)
     {
       if (posts.length == 0)
@@ -43,6 +58,7 @@
       };
     }
 
+    //  For a single reply, display it and increment our count.
     function add_reply(reply)
     {
       num_replies++;
@@ -50,6 +66,7 @@
       $('#reply-list').append("<p>" + reply + "</p>");
     }
 
+    //  Iterate through the entire list of replies, calling add_reply
     function display_replies(replies)
     {
       if (replies.length == 0)
@@ -61,10 +78,13 @@
       };
     }
 
+    //  After page loads, register for incoming msgs and emit 'ready'.
     $(document).ready(function ()
     {
       io.emit('profile_ready');            
     
+      //  Received a new post! 
+      //  If it came from this profile, add it like we added the others.
       io.on('new_post_received', function(post)
         {
           if (post.poster == $('#profile_name').html())
@@ -73,6 +93,8 @@
           }
         });
 
+      //  Received a new reply! 
+      //  If it came from this profile, add it like we added the others.
       io.on('new_reply_received', function(reply)
         {
           if (reply.replier == $('#profile_name').html())
@@ -81,11 +103,13 @@
           }
         });
 
+      //  Received a post list, so display it.  
       io.on('user_post_list_received', function(data)
         {
           display_posts(data.posts);
         });
 
+      //  Received a reply list, so display it.  
       io.on('user_reply_list_received', function(data)
         {
           display_replies(data.replies);
@@ -103,7 +127,6 @@
 
   <h2>Posts by <span id='profile_name'><%= user_name %></span></h2>
 
-  
   <p class='col-xs-6'>Total Posts: <span id='num-posts'>0</span></p>
   <p class='col-xs-6'>Total Replies: <span id='num-replies'>0</span></p>
 

@@ -1,5 +1,13 @@
 <!DOCTYPE HTML>
 <html lang='en-US'>
+
+<!-- 
+    For this main page (wall), once the page is loaded we request
+    the previous posts and replies. If the user creates a new
+    post or reply, we emit this to the server. Also, handle
+    any updates to the posts/replies lists or the leaderboard. 
+ -->
+
 <head>
     <meta charset='UTF-8' />
     <meta http-equiv='X-UA-Compatible' content='IE=edge' />
@@ -20,65 +28,80 @@
 
       $(document).ready(function ()
       {
+        //  "I exist, my page is loaded, please send me the leaderboard."
         io.emit('ready');
+        //  "...and the post list..."
         io.emit('request_all_post_list');
+        //  "...and the reply list please."
         io.emit('request_all_reply_list');
 
+        //  UI updaters
+
+        //    Create the HTML for a post, and push it onto a stack
+        //    (posts are displayed with the newest one on the top).
         function display_post(post)
-        {
-            var post_string = "<div id='post-" + post.post_id + "'>" + post.poster + " said: " + post.text;
-            post_string += "<div class='offset-right'><div id='replies-" + post.post_id + "'></div>";
-            post_string += "<input type='text' id='reply_post_" + post.post_id + "' class='form-control' />";
-            post_string += "<input type='button' class='btn btn-primary reply-button' post_id='" + post.post_id + "' value='Reply' /></div></div><hr />";
+          {
+              var post_string = "<div id='post-" + post.post_id + "'>" + post.poster + " said: " + post.text;
+              post_string += "<div class='offset-right'><div id='replies-" + post.post_id + "'></div>";
+              post_string += "<input type='text' id='reply_post_" + post.post_id + "' class='form-control' />";
+              post_string += "<input type='button' class='btn btn-primary reply-button' post_id='" + post.post_id + "' value='Reply' /></div></div><hr />";
 
-            $('#message-board').prepend(post_string);
-        }
+              $('#message-board').prepend(post_string);
+          }
 
+        //    Iterate through posts, displaying each. See above.
         function display_posts(posts)
-        {
-            if (posts.length == 0)
-                return;
+          {
+              if (posts.length == 0)
+                  return;
 
-            for (var post_num = 0; post_num < posts.length; post_num++) 
-            {
-                display_post(posts[post_num]);
-            }
-        }
+              for (var post_num = 0; post_num < posts.length; post_num++) 
+              {
+                  display_post(posts[post_num]);
+              }
+          }
 
-        function display_reply(reply)
-        {
-          var reply_string = "<div>" + reply.replier + " said: " + reply.text + "</div>";
+        //    Create the HTML for a reply, and push it onto a queue
+        //    (replies are displayed with oldest one on the top).
+       function display_reply(reply)
+          {
+            var reply_string = "<div>" + reply.replier + " said: " + reply.text + "</div>";
 
-          var reply_location = "#replies-" + reply.post_id;
-          $(reply_location).append(reply_string);
-        }
+            var reply_location = "#replies-" + reply.post_id;
+            $(reply_location).append(reply_string);
+          }
 
+        //    Iterate through replies, displaying each. See above.
         function display_replies(replies)
-        {
-          if (replies.length == 0)
           {
-            return;
+            if (replies.length == 0)
+            {
+              return;
+            }
+
+            for (var reply_num = 0; reply_num < replies.length; reply_num++) 
+            {
+              display_reply(replies[reply_num]);
+            };
           }
 
-          for (var reply_num = 0; reply_num < replies.length; reply_num++) 
-          {
-            display_reply(replies[reply_num]);
-          };
-        }
-
+        //  Iterate through leaders, creating/displaying the HTML.
         function display_leaders(leaders)
-        {
-          $('#leaderboard').html('');
-          for (var i = 0; i < leaders.length; i++) 
           {
-            if (leaders[i].count >= 0)
+            $('#leaderboard').html('');
+            for (var i = 0; i < leaders.length; i++) 
             {
-              leader_str = "<div><a href='/profile/" + leaders[i].name + "'>" + leaders[i].name + "</a>: " + leaders[i].count + " comments</div>";
-              $('#leaderboard').append(leader_str);
+              if (leaders[i].count >= 0)
+              {
+                leader_str = "<div><a href='/profile/" + leaders[i].name + "'>" + leaders[i].name + "</a>: " + leaders[i].count + " comments</div>";
+                $('#leaderboard').append(leader_str);
+              }
             }
           }
-        }
 
+        //  Click handlers
+
+        //  User submitted a new post. Grab it and emit to server.
         $('#msg-submit').click(function(evt)
           {
             post_txt = $('#msg-input').val();
@@ -87,6 +110,7 @@
             io.emit('new_post', { text: post_txt } );
           });
 
+        //  User submitted a new reply.  Grab it and emit to server.
         $(document).on('click', '.reply-button', function(evt)
           {
             post_id = $(this).attr('post_id');
@@ -97,27 +121,33 @@
             io.emit('new_reply', { text: reply_txt, post_id: post_id } );
           });
 
+        //  Route message handlers
 
+        //  Call the associated UI updater - display_posts.
         io.on('all_post_list_received', function(data)
           {
             display_posts(data.posts);
           });
 
+        //  Call the associated UI updater - display_post.
         io.on('new_post_received', function(post)
           {
             display_post(post);
           });
 
+        //  Call the associated UI updater - display_replies.
         io.on('all_reply_list_received', function(data)
           {
             display_replies(data.replies);
           });
 
+        //  Call the associated UI updater - display_reply.
         io.on('new_reply_received', function(reply)
           {
             display_reply(reply);
           });
 
+        //  Call the associated UI updater - display_leaders.
         io.on('leaderboard_updated', function(data)
           {
             display_leaders(data.leaders);
