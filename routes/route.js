@@ -38,7 +38,7 @@ module.exports = function Route(app)
   //    Broadcast the top three leaders, in numbers of posts/replies.
     //  For each user, insert them into a sorted list (capped at 3).
     //  Then send these leaders to app.io (all). 
-  function update_leaders(request = null)
+  function update_leaders(request)  
   {
     var user_num = 0;
     high_val = -1;
@@ -73,7 +73,7 @@ module.exports = function Route(app)
         }
       }
     }
-    if (request)
+    if (typeof request !== 'undefined')
     {
       request.io.emit('leaderboard_updated', { leaders: leaders });
     }
@@ -83,6 +83,15 @@ module.exports = function Route(app)
     }
   }
 
+  //    Deny access, because no one is logged in.
+  function deny_access(request, response, error_string)
+  {
+    request.session.error = error_string;
+    request.session.save(function() 
+      {
+        response.redirect('/');
+      }); 
+  }
 
   //  Route message handling
 
@@ -143,7 +152,7 @@ module.exports = function Route(app)
   //    Client requested the list of leaders - emit it.
   app.io.route('request_leaderboard', function(request) 
     {
-      update_leaderboard();
+      update_leaders(request);
     });
 
 
@@ -152,7 +161,20 @@ module.exports = function Route(app)
   //    Root URL is routed to the index view, a login page.
   app.get('/', function(request, response)
     {
-      response.render('index', { title:'Enter the Wall', error: request.session.error });
+      var err_str = null;
+      if (request.session.error != null)
+      {
+        err_str = request.session.error;
+        request.session.error = null;
+        request.session.save(function() 
+          {
+            response.render('index', { title:'Enter the Wall', error: err_str });
+          }); 
+      }
+      else
+      {
+        response.render('index', { title:'Enter the Wall' });        
+      }
     });
 
   //    Index URL is redirected to the root URL.
@@ -182,11 +204,7 @@ module.exports = function Route(app)
       }
       else
       {
-        request.session.error = 'Name cannot be blank';
-        request.session.save(function() 
-          {
-            response.redirect('/');
-          }); 
+        deny_access(request, response, "Name cannot be blank.");
       }
     });
 
@@ -194,7 +212,14 @@ module.exports = function Route(app)
     //  to be passed is our name - the view requests other info it needs.
   app.get('/wall', function(request, response)
     {
-      response.render('wall', { title:'Real-Time Message Board', name:request.session.name });
+      if (request.session.name)
+      {
+        response.render('wall', { title:'Real-Time Message Board', name:request.session.name });
+      }
+      else
+      {
+        deny_access(request, response, "You must log in first.");
+      }
     });
 
   //    Profile view displays this user's name, the list of their posts,

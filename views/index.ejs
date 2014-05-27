@@ -24,8 +24,9 @@
 
 <body class='container'>
 
-<%  if (error) { %>
+<%  if (typeof error !== 'undefined') {   %>
   <div id='error-block'><%= error %></div>
+  <a href='/wall'>Back to the wall</a>
 <%  }   %>
 
   <form action='/login' method='post' id='name-form' class='form-horizontal'>
